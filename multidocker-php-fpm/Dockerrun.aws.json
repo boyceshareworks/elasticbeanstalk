@@ -1,0 +1,101 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "mysqldata",
+      "host": {
+        "sourcePath": "/var/lib/mysql"
+      }
+    }
+    ],
+  "containerDefinitions": [
+    {
+      "name": "phpcode",
+      "image": "417732881703.dkr.ecr.eu-west-1.amazonaws.com/web",
+      "environment": [
+        {
+          "name": "Container",
+          "value": "phpcode"
+        }
+      ],
+      "essential": true,
+      "memory": 64
+    },
+    {
+      "name": "php",
+      "image": "417732881703.dkr.ecr.eu-west-1.amazonaws.com/phpfpm",
+      "environment": [
+        {
+          "name": "Container",
+          "value": "PHP"
+        }
+      ],
+      "volumesFrom": [
+        {
+          "sourceContainer": "phpcode"
+        }
+      ],
+      "essential": true,
+      "memory": 64,
+      "links": [
+        "phpcode",
+        "redis",
+        "mysql"
+      ]
+    },
+    {
+      "name": "nginx",
+      "image": "417732881703.dkr.ecr.eu-west-1.amazonaws.com/nginx",
+      "essential": true,
+      "memory": 64,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "volumesFrom": [
+        {
+          "sourceContainer": "phpcode"
+        }
+      ],
+      "links": [
+        "php",
+        "phpcode",
+        "redis",
+        "mysql"
+      ]
+    },
+    {
+      "name": "mysql",
+      "image": "417732881703.dkr.ecr.eu-west-1.amazonaws.com/mysql",
+      "essential": true,
+      "memory": 512,
+      "portMappings": [
+        {
+          "hostPort": 3306,
+          "containerPort": 3306
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "mysqldata",
+          "containerPath": "/var/lib/mysql",
+          "readOnly": false
+        }
+      ]
+    },
+    {
+      "name": "redis",
+      "image": "redis:3.2.4",
+      "essential": true,
+      "memory": 64,
+      "portMappings": [
+        {
+          "hostPort": 6379,
+          "containerPort": 6379
+        }
+      ]
+    }
+  ]
+}

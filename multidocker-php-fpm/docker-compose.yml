@@ -1,0 +1,32 @@
+version: '2'
+services:
+  phpcode:
+    build: ./web
+    volumes: 
+      - ./web:/web
+  nginx:
+    image: 417732881703.dkr.ecr.eu-west-1.amazonaws.com/nginx
+    volumes_from: 
+      - phpcode
+    ports:
+      - "80:80"
+    depends_on:
+      - phpcode
+      - redis
+      - mysql
+  phpfpm:
+    image: 417732881703.dkr.ecr.eu-west-1.amazonaws.com/phpfpm
+    volumes_from: 
+      - phpcode
+    ports:
+      - "9000:9000"
+  redis:
+    image: redis:3.2.4
+    ports:
+      - "6379:6379"
+  mysql:
+    image: 417732881703.dkr.ecr.eu-west-1.amazonaws.com/mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ~/mysqldata:/var/lib/mysql
