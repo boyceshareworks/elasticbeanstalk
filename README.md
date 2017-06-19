@@ -1,0 +1,2 @@
+# elasticbeanstalk
+AWS ElasticBeanstalk Templates
